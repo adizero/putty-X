@@ -3865,7 +3865,7 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 			unsigned char *output)
 {
     BYTE keystate[256];
-    int scan, left_alt = 0, key_down, shift_state;
+    int scan, left_alt = 0, key_down, shift_state, xterm_modifier;
     int r, i, code;
     unsigned char *p = output;
     static int alt_sum = 0;
@@ -4002,6 +4002,15 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
     shift_state = ((keystate[VK_SHIFT] & 0x80) != 0)
 	+ ((keystate[VK_CONTROL] & 0x80) != 0) * 2;
 
+	xterm_modifier = 1;  //no special key was pressed
+	if ((keystate[VK_SHIFT] & 0x80) != 0)
+		xterm_modifier += 1;
+	if ((keystate[VK_MENU] & 0x80) != 0)
+		xterm_modifier += 2;
+	if ((keystate[VK_CONTROL] & 0x80) != 0)
+		xterm_modifier += 4;
+	//later add also right alt key support (VK_RMENU) and windows-key support ?
+
     /* Note if AltGr was pressed and if it was used as a compose key */
     if (!compose_state) {
 	compose_key = 0x100;
@@ -4080,7 +4089,33 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
     if (key_down) {
 	/* Okay, prepare for most alts then ... */
 	if (left_alt && shift_state != 1 && !(wParam == VK_UP || wParam == VK_DOWN || wParam == VK_RIGHT || wParam == VK_LEFT || wParam == VK_HOME || wParam == VK_END))
-	    *p++ = '\033';
+	{
+		char fkey = 0;
+		switch (wParam) {
+		  case VK_F1:
+		  case VK_F2:
+		  case VK_F3:
+		  case VK_F4:
+		  case VK_F5:
+		  case VK_F6:
+		  case VK_F7:
+		  case VK_F8:
+		  case VK_F9:
+		  case VK_F10:
+		  case VK_F11:
+		  case VK_F12:
+			  fkey = 1;
+			  break;
+		  default:
+			  fkey = 0;
+			  break;
+		}
+
+		if (cfg.funky_type != FUNKY_XTERM || fkey == 0)
+		{
+			*p++ = '\033';
+		}
+	}
 
 	/* Lets see if it's a pattern we know all about ... */
 	if (wParam == VK_PRIOR && shift_state == 1) {
@@ -4528,15 +4563,11 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 	    if (term->vt52_mode) {
 		p += sprintf((char *) p, "\x1B%c", code + 'P' - 11);
 	    } else {
-		char * prefix;
-		if (shift_state == 1) {
-		    prefix = "[1;2";
-		} else if (shift_state == 2) {
-		    prefix = "[1;5";
-		} else if (shift_state == 3) {
-		    prefix = "[1;6";
+		char prefix[20];
+		if (xterm_modifier > 1) {
+			snprintf(prefix, sizeof(prefix), "[1;%d", xterm_modifier);
 		} else {
-		    prefix = "O";
+		    snprintf(prefix, sizeof(prefix), "O");
 		}
 		p += sprintf((char *) p, "\x1B%s%c", prefix, code + 'P' - 11);
 	    }
@@ -4546,15 +4577,11 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 		if (term->vt52_mode) {
 	    p += sprintf((char *) p, "\x1B[%d~", code);
 		} else {
-		char * prefix;
-		if (shift_state == 1) {
-			prefix = ";2";
-		} else if (shift_state == 2) {
-			prefix = ";5";
-		} else if (shift_state == 3) {
-			prefix = ";6";
+		char prefix[20];
+		if (xterm_modifier > 1) {
+			snprintf(prefix, sizeof(prefix), ";%d", xterm_modifier);
 		} else {
-			prefix = "";
+			snprintf(prefix, sizeof(prefix), "");
 		}
 		p += sprintf((char *) p, "\x1B[%d%s~", code, prefix);
 		}
