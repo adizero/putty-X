@@ -410,7 +410,9 @@ if (defined $makefiles{'cygwin'}) {
     "# You can define this path to point at your tools if you need to\n".
     "# TOOLPATH = c:\\cygwin\\bin\\ # or similar, if you're running Windows\n".
     "# TOOLPATH = /pkg/mingw32msvc/i386-mingw32msvc/bin/\n".
-    "CC = \$(TOOLPATH)gcc\n".
+    "# switched to mingw32 default for cygwin compilation\n".
+    "# CC = \$(TOOLPATH)gcc\n".
+    "CC = i686-pc-mingw32-gcc.exe\n".
     "RC = \$(TOOLPATH)windres\n".
     "# Uncomment the following two lines to compile under Winelib\n".
     "# CC = winegcc\n".
