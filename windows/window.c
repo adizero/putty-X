@@ -4269,27 +4269,27 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 	    return -2;
 	}
 
-	// Here goes my special extensive F10 functionality (can't figure out the other code so I will explicitly branch)
-	if (wParam == VK_F10 && shift_state == 0) { // F10
-		p += sprintf((char *) p, "\x1B[21~");
-		return p - output;
-	}
-	if (wParam == VK_F10 && shift_state == 1 && left_alt) { // Shift+Alt+F10
-		p += sprintf((char *) p, "\x1B\x1B[34~");
-		return p - output;
-	}
-	if (wParam == VK_F10 && shift_state == 1) { // Shift+F10
-		p += sprintf((char *) p, "\x1B[34~");
-		return p - output;
-	}
-	if (wParam == VK_F10 && shift_state == 2) { // Ctrl+F10
-		p += sprintf((char *) p, "\x1B[44~");
-		return p - output;
-	}
-	if (wParam == VK_F10 && shift_state == 3) { // Shift+Ctrl+F10
-		p += sprintf((char *) p, "\x1B[54~");
-		return p - output;
-	}
+//	// Here goes my special extensive F10 functionality (can't figure out the other code so I will explicitly branch)
+//	if (wParam == VK_F10 && shift_state == 0) { // F10
+//		p += sprintf((char *) p, "\x1B[21~");
+//		return p - output;
+//	}
+//	if (wParam == VK_F10 && shift_state == 1 && left_alt) { // Shift+Alt+F10
+//		p += sprintf((char *) p, "\x1B\x1B[34~");
+//		return p - output;
+//	}
+//	if (wParam == VK_F10 && shift_state == 1) { // Shift+F10
+//		p += sprintf((char *) p, "\x1B[34~");
+//		return p - output;
+//	}
+//	if (wParam == VK_F10 && shift_state == 2) { // Ctrl+F10
+//		p += sprintf((char *) p, "\x1B[44~");
+//		return p - output;
+//	}
+//	if (wParam == VK_F10 && shift_state == 3) { // Shift+Ctrl+F10
+//		p += sprintf((char *) p, "\x1B[54~");
+//		return p - output;
+//	}
 
 	if (wParam == VK_TAB && shift_state == 2) {	/* Ctrl-Tab */
 	    p += sprintf((char *) p, "\x1B[27;5;9~");
@@ -4530,17 +4530,35 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 	    } else {
 		char * prefix;
 		if (shift_state == 1) {
-		    prefix = "1;2";
+		    prefix = "[1;2";
 		} else if (shift_state == 2) {
-		    prefix = "1;5";
+		    prefix = "[1;5";
 		} else if (shift_state == 3) {
-		    prefix = "1;6";
+		    prefix = "[1;6";
 		} else {
-		    prefix = "";
+		    prefix = "O";
 		}
-		p += sprintf((char *) p, "\x1BO%s%c", prefix, code + 'P' - 11);
+		p += sprintf((char *) p, "\x1B%s%c", prefix, code + 'P' - 11);
 	    }
 	    return p - output;
+	}
+	else if ((cfg.funky_type == FUNKY_XTERM) && code >= 15 && code <= 24 && code != 16 && code != 22) {
+		if (term->vt52_mode) {
+	    p += sprintf((char *) p, "\x1B[%d~", code);
+		} else {
+		char * prefix;
+		if (shift_state == 1) {
+			prefix = ";2";
+		} else if (shift_state == 2) {
+			prefix = ";5";
+		} else if (shift_state == 3) {
+			prefix = ";6";
+		} else {
+			prefix = "";
+		}
+		p += sprintf((char *) p, "\x1B[%d%s~", code, prefix);
+		}
+		return p - output;
 	}
 	if (code) {
 	    p += sprintf((char *) p, "\x1B[%d~", code);
