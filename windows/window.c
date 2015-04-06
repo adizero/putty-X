@@ -4350,14 +4350,14 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 	    p += sprintf((char *) p, "\x1B[1;6D");
 	    return p - output;
 	}
-	if (wParam == VK_HOME && shift_state == 3) {	/* Ctrl-Shift-Home */
-	    p += sprintf((char *) p, "\x1B[1;6H");
-	    return p - output;
-	}
-	if (wParam == VK_END && shift_state == 3) {	/* Ctrl-Shift-End */
-	    p += sprintf((char *) p, "\x1B[1;6F");
-	    return p - output;
-	}
+//	if (wParam == VK_HOME && shift_state == 3) {	/* Ctrl-Shift-Home */
+//	    p += sprintf((char *) p, "\x1B[1;6H");
+//	    return p - output;
+//	}
+//	if (wParam == VK_END && shift_state == 3) {	/* Ctrl-Shift-End */
+//	    p += sprintf((char *) p, "\x1B[1;6F");
+//	    return p - output;
+//	}
 	if (wParam == VK_TAB && shift_state == 1) {	/* Shift tab */
 	    *p++ = 0x1B;
 	    *p++ = '[';
@@ -4492,7 +4492,7 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 	      code = 6;
 	      break;
 	  }
-	  if (!cfg.rxvt_homeend) {
+	  if (!cfg.rxvt_homeend || cfg.funky_type == FUNKY_XTERM) {
 	    if (wParam == VK_HOME) {
 	      code = 1;
 	    } else if (wParam == VK_END) {
@@ -4584,6 +4584,29 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 			snprintf(prefix, sizeof(prefix), "");
 		}
 		p += sprintf((char *) p, "\x1B[%d%s~", code, prefix);
+		}
+		return p - output;
+	}
+	else if ((cfg.funky_type == FUNKY_XTERM) && code >= 1 && code <= 6) {
+		if (term->vt52_mode) {
+			p += sprintf((char *) p, "\x1B[%d~", code);
+		} else {
+			char prefix[20];
+			if (code != 1 && code != 4) {
+				if (xterm_modifier > 1) {
+					snprintf(prefix, sizeof(prefix), ";%d", xterm_modifier);
+				} else {
+					snprintf(prefix, sizeof(prefix), "");
+				}
+				p += sprintf((char *) p, "\x1B[%d%s~", code, prefix);
+			} else {
+				if (xterm_modifier > 1) {
+					snprintf(prefix, sizeof(prefix), "1;%d", xterm_modifier);
+				} else {
+					snprintf(prefix, sizeof(prefix), "");
+				}
+				p += sprintf((char *) p, "\x1B[%s%c", prefix, (code == 1) ? 'H' : 'F');
+			}
 		}
 		return p - output;
 	}
