@@ -4088,7 +4088,7 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
     /* Ripping out the AltGr stuff so I can gain right alt functionality everywhere */
     if (key_down) {
 	/* Okay, prepare for most alts then ... */
-	if (left_alt && shift_state != 1 && !(wParam == VK_UP || wParam == VK_DOWN || wParam == VK_RIGHT || wParam == VK_LEFT || wParam == VK_HOME || wParam == VK_END))
+	if (left_alt && shift_state != 1 && !(wParam == VK_UP || wParam == VK_DOWN || wParam == VK_RIGHT || wParam == VK_LEFT))
 	{
 		char fkey = 0;
 		switch (wParam) {
@@ -4104,6 +4104,12 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 		  case VK_F10:
 		  case VK_F11:
 		  case VK_F12:
+		  case VK_INSERT:
+		  case VK_DELETE:
+		  case VK_HOME:
+		  case VK_END:
+		  case VK_PRIOR:
+		  case VK_NEXT:
 			  fkey = 1;
 			  break;
 		  default:
@@ -4477,7 +4483,7 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 	    code = 34;
 	    break;
 	}
-	if ((shift_state&2) == 0) {
+	if ((shift_state&2) == 0 || cfg.funky_type == FUNKY_XTERM) {
 	  switch (wParam) {
 	    case VK_INSERT:
 	      code = 2;
