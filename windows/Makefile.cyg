@@ -106,9 +106,10 @@
 # You can define this path to point at your tools if you need to
 # TOOLPATH = c:\cygwin\bin\ # or similar, if you're running Windows
 # TOOLPATH = /pkg/mingw32msvc/i386-mingw32msvc/bin/
+TOOLPATH = i686-w64-mingw32-
 # switched to mingw32 default for cygwin compilation
-# CC = $(TOOLPATH)gcc
-CC = i686-pc-mingw32-gcc.exe
+CC = $(TOOLPATH)gcc
+# CC = $(CC).exe
 RC = $(TOOLPATH)windres
 # Uncomment the following two lines to compile under Winelib
 # CC = winegcc
@@ -127,8 +128,10 @@ RCFLAGS += $(patsubst -D%,--define %,$(VER))
 # _WIN32_IE is required to expose identifiers that only make sense on
 # systems with IE5+ installed, such as some arguments to SHGetFolderPath().
 # WINVER etc perform a similar function for FlashWindowEx().
-CFLAGS += -D_WIN32_IE=0x0500
-CFLAGS += -DWINVER=0x0500 -D_WIN32_WINDOWS=0x0410 -D_WIN32_WINNT=0x0500
+CFLAGS += -D_WIN32_IE=0x0501
+CFLAGS += -DWINVER=0x0501 -D_WIN32_WINDOWS=0x0501 -D_WIN32_WINNT=0x0501
+
+CFLAGS += -DSECURITY_WIN32
 
 .SUFFIXES:
 
