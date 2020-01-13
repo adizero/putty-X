@@ -2617,16 +2617,18 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	}
 	/* HACK: PuttyTray / Nutty : END */
 
-	if (wParam & (MK_LBUTTON | MK_MBUTTON | MK_RBUTTON) &&
-	    GetCapture() == hwnd) {
+	{
 	    Mouse_Button b;
 	    if (wParam & MK_LBUTTON)
 		b = MBT_LEFT;
 	    else if (wParam & MK_MBUTTON)
 		b = MBT_MIDDLE;
-	    else
-		b = MBT_RIGHT;
-	    term_mouse(term, b, translate_button(b), MA_DRAG,
+            else if (wParam & MK_RBUTTON)
+                b = MBT_RIGHT;
+            else
+                b = MBT_NOTHING;
+            term_mouse(term, b, translate_button(b),
+                       b == MBT_NOTHING ? MA_MOVE : MA_DRAG,
 		       TO_CHR_X(X_POS(lParam)),
 		       TO_CHR_Y(Y_POS(lParam)), wParam & MK_SHIFT,
 		       wParam & MK_CONTROL, is_alt_pressed());
