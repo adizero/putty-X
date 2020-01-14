@@ -1,10 +1,12 @@
+Forked from official PuTTY 0.62. Major differences:
+
+* Mouse hover support (mode 1003)
+
 * Improved support of ctrl-shift-alt modifiers and F1-F12 function keys.
 
 * Italics support in terminal.
 
-* Many other improvements.
-
-Forked from PuTTY 0.62.
+* Many other improvements - hyperlinks, local config files.
 
 Compile with mingw.
 
