@@ -1,4 +1,10 @@
-Improved support of ctrl-shift-alt modifiers and F1-F12 function keys.
+* Improved support of ctrl-shift-alt modifiers and F1-F12 function keys.
+
+* Italics support in terminal.
+
+* Many other improvements.
+
+Forked from PuTTY 0.62.
 
 Compile with mingw.
 
